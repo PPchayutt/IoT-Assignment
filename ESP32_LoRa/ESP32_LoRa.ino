@@ -32,7 +32,7 @@ const int mqtt_port = 1883;
 const char* TOPIC_UPLINK = "lora/node1/data";   // Topic ส่งค่าเซนเซอร์ไปให้ Raspberry Pi MCP
 const char* TOPIC_DOWNLINK = "lora/node1/cmd";  // Topic รับคำสั่งจาก AI Chat ส่งกลับไปหา LoRa Node
 
-// ความถี่คลื่น LoRa 923 MHz (ตรงกับเสา 923 MHz ของคุณ)
+// ความถี่คลื่น LoRa 923 MHz
 #define LORA_FREQ 923E6
 
 WiFiClient espClient;
