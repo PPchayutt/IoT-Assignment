@@ -1,4 +1,3 @@
-cat << 'EOF' > ~/Documents/GitHub/IoT-Assignment/README.md
 # IoT Assignment: สร้างระบบ IoT ควบคุม/อ่านค่า ผ่าน AI Chat box (MCP Server)
 
 ![Architecture](./IoT%20AI%20Chat%20Control%20Architecture.png)
