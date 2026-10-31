@@ -1,0 +1,5 @@
+mcp[cli]
+paho-mqtt
+RPi.GPIO
+flask
+flask-cors

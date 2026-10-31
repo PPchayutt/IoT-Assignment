@@ -25,6 +25,7 @@
     <div class="dashboard">
         <h2>IoT Smart Dashboard (Connected via REST API)</h2>
 
+        <!-- แถวแสดงค่า Temperature, Humidity, Distance -->
         <div class="top-cards">
             <div class="card">
                 <h4>Temperature (LoRa DHT11)</h4>
@@ -40,6 +41,7 @@
             </div>
         </div>
 
+        <!-- แถวปุ่มควบคุมอุปกรณ์ทั้งบน Raspberry Pi และบน LoRa Node -->
         <div class="controls-row">
             <div class="control-box">
                 <div>
@@ -57,6 +59,7 @@
             </div>
         </div>
 
+        <!-- กราฟเส้น Live Data -->
         <div class="chart-box">
             <canvas id="liveChart" height="95"></canvas>
         </div>

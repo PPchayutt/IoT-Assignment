@@ -9,10 +9,10 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 # ==========================================
-# 1. ตั้งค่าขา GPIO บนบอร์ด Raspberry Pi (ส่วนที่ 3 Local Devices)
+# 1. ตั้งค่าขา GPIO บนบอร์ด Raspberry Pi
 # ==========================================
-LED_PIN_14 = 14   # ขา GPIO 14 (Physical Pin 8)
-LED_PIN_4 = 4     # ขา GPIO 4 (Physical Pin 7)
+LED_PIN_14 = 14   # ขา GPIO 14
+LED_PIN_4 = 4     # ขา GPIO 4 สำรอง
 TRIG_PIN = 23     # ขา TRIG ของ Ultrasonic HC-SR04 (Pin 16)
 ECHO_PIN = 24     # ขา ECHO ของ Ultrasonic HC-SR04 (Pin 18)
 
@@ -87,6 +87,7 @@ def set_pi_led_hardware(state_str: str):
 MQTT_BROKER = "mqtt-dashboard.com"
 MQTT_PORT = 1883
 
+# Topics
 TOPIC_PI_TEMP = "pi/sensor/temperature"
 TOPIC_PI_HUMID = "pi/sensor/humidity"
 TOPIC_PI_LED = "pi/device/led"
@@ -125,6 +126,7 @@ mqtt_client.on_message = on_message
 mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
 mqtt_client.loop_start()
 
+# Thread เบื้องหลัง: อ่านระยะทาง Ultrasonic, เก็บประวัติลงกราฟ Live Data และ Publish ขึ้น MQTT
 def background_sensor_updater():
     while True:
         read_ultrasonic_distance()
@@ -138,6 +140,7 @@ def background_sensor_updater():
         if len(system_state["history"]) > 15:
             system_state["history"].pop(0)
 
+        # Publish ค่าขึ้น Topic pi/sensor/...
         mqtt_client.publish(TOPIC_PI_TEMP, str(system_state["temperature"]))
         mqtt_client.publish(TOPIC_PI_HUMID, str(system_state["humidity"]))
         time.sleep(5)
@@ -145,7 +148,7 @@ def background_sensor_updater():
 threading.Thread(target=background_sensor_updater, daemon=True).start()
 
 # ==========================================
-# 4. สร้าง MCP Server และ Tools ทั้ง 4 ตัว (ส่วนที่ 2 MCP Server)
+# 4. สร้าง MCP Server และ Tools ทั้ง 4 ตัว
 # ==========================================
 TUNNL_DOMAIN = "pure-canyon-ccffaed0.tunnl.gg"
 
@@ -170,6 +173,7 @@ mcp = FastMCP(
     )
 )
 
+# Tool ที่ 1: Read Pi Sensors
 @mcp.tool()
 def read_pi_sensors() -> str:
     """Tool: Read Pi Sensors - อ่านค่าเซนเซอร์และสถานะอุปกรณ์จากบอร์ด Raspberry Pi (ระยะทาง Ultrasonic, อุณหภูมิ, ความชื้น, สถานะไฟ LED และลิงก์หน้าเว็บ Dashboard)"""
@@ -182,6 +186,7 @@ def read_pi_sensors() -> str:
         "web_dashboard_info": "ดูกราฟและควบคุมผ่านหน้าเว็บได้ที่ http://<IP-ของ-Raspberry-Pi>:5000"
     }, ensure_ascii=False)
 
+# Tool ที่ 2: Control Pi Devices
 @mcp.tool()
 def control_pi_devices(action: str) -> str:
     """Tool: Control Pi Devices - สั่งเปิดหรือปิดไฟ LED บนบอร์ด Raspberry Pi (ส่งค่า action เป็น 'on' หรือ 'off')"""
@@ -192,6 +197,7 @@ def control_pi_devices(action: str) -> str:
     mqtt_client.publish(TOPIC_PI_LED, cmd, qos=1)
     return f"สั่ง {cmd} ไฟ LED บนบอร์ด Raspberry Pi เรียบร้อยแล้วค่ะ"
 
+# Tool ที่ 3: Read from MQTT
 @mcp.tool()
 def read_from_mqtt() -> str:
     """Tool: Read from MQTT - อ่านค่าข้อมูลล่าสุดจาก MQTT Broker รวมถึงอุณหภูมิ ความชื้น และสถานะไฟจาก LoRa Node"""
@@ -204,6 +210,7 @@ def read_from_mqtt() -> str:
         "raw_payload": system_state["lora_raw_payload"]
     }, ensure_ascii=False)
 
+# Tool ที่ 4: Publish to MQTT
 @mcp.tool()
 def publish_to_mqtt(topic: str, message: str) -> str:
     """Tool: Publish to MQTT - ส่งคำสั่งหรือข้อความไปยัง MQTT Broker
@@ -222,7 +229,7 @@ def publish_to_mqtt(topic: str, message: str) -> str:
     return f"Publish ข้อความ '{message}' ไปยัง MQTT Topic '{topic}' สำเร็จแล้วค่ะ"
 
 # ==========================================
-# 5. สร้าง REST API และ Web Dashboard (ส่วนที่ 7 Web Dashboard)
+# 5. สร้าง REST API และ Web Dashboard
 # ==========================================
 app = Flask(__name__)
 CORS(app)
@@ -233,11 +240,13 @@ def index():
 
 @app.route("/api/sensors", methods=["GET"])
 def api_get_sensors():
+    """REST API สำหรับให้ Web Dashboard ดึงค่าทั้งหมดไปแสดงผล"""
     read_ultrasonic_distance()
     return jsonify(system_state)
 
 @app.route("/api/led", methods=["POST"])
 def api_control_led():
+    """REST API สำหรับให้ Web Dashboard สั่งเปิด-ปิดไฟ LED บน Raspberry Pi"""
     data = request.get_json(silent=True) or {}
     action = data.get("action", "")
     msg = control_pi_devices(action)
@@ -245,6 +254,7 @@ def api_control_led():
 
 @app.route("/api/lora/led", methods=["POST"])
 def api_control_lora_led():
+    """REST API สำหรับให้ Web Dashboard สั่งเปิด-ปิดไฟบน LoRa Node ผ่าน MQTT"""
     data = request.get_json(silent=True) or {}
     action = data.get("action", "").strip().upper()
     msg = publish_to_mqtt(TOPIC_LORA_CMD, action)
