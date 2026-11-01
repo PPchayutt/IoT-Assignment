@@ -1,13 +1,12 @@
-cat << 'EOF' > ~/Documents/GitHub/IoT-Assignment/README.md
-# 🤖 IoT Smart Control & Monitoring System via AI Chat Box (MCP Server)
+# ระบบ IoT ควบคุม/อ่านค่า ผ่าน AI Chat box
 
-โปรเจกต์ระบบ **Internet of Things (IoT)** แบบครบวงจร สำหรับการอ่านค่าเซนเซอร์และควบคุมอุปกรณ์ฮาร์ดแวร์ทั้งแบบต่อสายตรง (Local GPIO) และแบบไร้สายระยะไกลผ่านคลื่นวิทยุ **LoRa (923 MHz)** โดยเชื่อมต่อเข้ากับ **AI Chat Box (เช่น ChatGPT)** ผ่านโปรโตคอล **Model Context Protocol (MCP)** และแสดงผลแบบเรียลไทม์บน **Web Dashboard** ด้วย **REST API**
+โปรเจกต์ระบบ **Internet of Things (IoT)** สำหรับการอ่านค่าเซนเซอร์และควบคุมอุปกรณ์ฮาร์ดแวร์ทั้งแบบต่อสายตรง (Local GPIO) และแบบไร้สายระยะไกลผ่านคลื่นวิทยุ **LoRa (923 MHz)** โดยเชื่อมต่อเข้ากับ **AI Chat Box (ChatGPT)** ผ่านโปรโตคอล **Model Context Protocol (MCP)** และแสดงผลแบบเรียลไทม์บน **Web Dashboard** ด้วย **REST API**
 
 ![System Architecture](./IoT%20AI%20Chat%20Control%20Architecture.png)
 
 ---
 
-## 🌟 คุณสมบัติหลักของระบบ (Key Features & Assignment Checklist)
+## คุณสมบัติหลักของระบบ (Key Features)
 
 1. **AI Chat Box Integration (MCP over HTTP/JSON):** สั่งเปิด-ปิดไฟ และสอบถามค่าอุณหภูมิ ความชื้น ระยะทางผ่านภาษาธรรมชาติบน AI Chat Box ที่เชื่อมต่อกับ MCP Server
 2. **Raspberry Pi MCP Server:** รันเซิร์ฟเวอร์ด้วย `FastMCP` บนบอร์ด Raspberry Pi พร้อมเปิด Secure Tunnel (`tunnl.gg`) ให้ AI จากภายนอกเข้าถึงได้
@@ -23,7 +22,7 @@ cat << 'EOF' > ~/Documents/GitHub/IoT-Assignment/README.md
 
 ---
 
-## 📂 โครงสร้างโปรเจกต์ (Project Structure)
+## โครงสร้างโปรเจกต์ (Project Structure)
 
 ```text
 IoT-Assignment/
